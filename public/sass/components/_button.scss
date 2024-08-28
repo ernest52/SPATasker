@@ -1,0 +1,14 @@
+.btn {
+  border: none;
+  background-color: transparent;
+  padding: 1rem;
+  cursor: pointer;
+  &__purple {
+    border: 2px solid $color_purple--light;
+    color: $color_purple;
+    &:hover {
+      border: 2px solid $color_purple--dark;
+      color: $color_purple--light;
+    }
+  }
+}
