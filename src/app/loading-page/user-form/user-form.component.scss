@@ -1,0 +1,19 @@
+@import "../../../../public/sass/main.scss";
+:host {
+  min-width: 50%;
+  margin: 1rem;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid $color_white;
+  padding: 1rem;
+
+  &__input {
+    margin: 1rem 0;
+    border: none;
+    outline: none;
+    height: 3rem;
+    color: $color_purple--light;
+  }
+}
