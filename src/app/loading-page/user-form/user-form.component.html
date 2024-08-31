@@ -1,14 +1,27 @@
-<form (ngSubmit)="onSubmit()" #connectForm="ngForm" class="form">
+<form (ngSubmit)="onSubmit()" [formGroup]="form" class="form">
   <label for="name">username: </label>
   <input
     type="text"
     name="name"
     id="name"
     [value]="name"
-    ngModel
     autocomplete="false"
     class="form__input"
+    formControlName="name"
   />
+  <p
+    [class]="{
+      info: true,
+      info__full: username.invalid && username.touched,
+      info__empty: username.valid || username.untouched
+    }"
+  >
+  @if(username.errors?.['minlength'] && username.touched){
+    <p>username needs to have : {{username.errors?.['minlength'].requiredLength}} characters but has: {{username.errors?.['minlength'].actualLength}} </p>
+   }
+    @else if(username.invalid && username.touched){ this field is required}
+   
+  </p>
   <label for="password">password: </label>
   <input
     type="text"
@@ -17,7 +30,16 @@
     id="password"
     class="form__input"
     autocomplete="false"
-    ngModel
+    formControlName="password"
   />
-  <button class="btn btn__purple">{{ mode }}</button>
+  <p
+    [class]="{
+      info: true,
+      info__full: userPassword.invalid && userPassword.touched,
+      info__empty: userPassword.valid || userPassword.untouched
+    }"
+  >
+    @if(userPassword.invalid && userPassword.touched){ this field is required }
+  </p>
+  <button class="btn btn__purple" [disabled]="form.invalid">{{ mode }}</button>
 </form>

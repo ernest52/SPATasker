@@ -6,6 +6,8 @@
 .form {
   display: flex;
   flex-direction: column;
+  width: 80vw;
+  max-width: 80vw;
   border: 2px solid $color_white;
   padding: 1rem;
 
@@ -15,5 +17,14 @@
     outline: none;
     height: 3rem;
     color: $color_purple--light;
+  }
+  .info {
+    margin: 1rem 0;
+    &__full {
+      font-size: 1.3rem;
+    }
+    &__empty {
+      height: 1.5rem;
+    }
   }
 }
