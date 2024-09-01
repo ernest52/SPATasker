@@ -21,26 +21,37 @@ export class UserFormComponent implements OnInit {
   httpClient = inject(HttpClient);
   destroyRef = inject(DestroyRef);
   form = new FormGroup({
-    name: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(5)],
+    email: new FormControl('', {
+      validators: [
+        Validators.required,
+        Validators.minLength(9),
+        Validators.maxLength(30),
+        Validators.email,
+      ],
     }),
-    password: new FormControl('', { validators: [Validators.required] }),
+    password: new FormControl('', {
+      validators: [
+        Validators.required,
+        Validators.minLength(12),
+        Validators.maxLength(30),
+      ],
+    }),
   });
   @Input({ required: true }) mode!: string;
-  name = '';
+  email = '';
   password = '';
-  username = this.form.controls.name;
+  userEmail = this.form.controls.email;
   userPassword = this.form.controls.password;
 
   ngOnInit() {
     this.form?.valueChanges?.pipe(debounceTime(1000)).subscribe({
       next: (changes) => {
-        const { password, name } = changes;
+        const { password, email } = changes;
         if (password) {
           localStorage.setItem('password', JSON.stringify(password));
         }
-        if (name) {
-          localStorage.setItem('username', JSON.stringify(name));
+        if (email) {
+          localStorage.setItem('email', JSON.stringify(name));
         }
 
         localStorage.setItem('mode', JSON.stringify(this.mode));
@@ -52,11 +63,11 @@ export class UserFormComponent implements OnInit {
       if (modeJSON) {
         const mode = JSON.parse(modeJSON);
         if (this.mode === mode) {
-          const usernameJSON = localStorage.getItem('username');
+          const emailJSON = localStorage.getItem('email');
           const passwordJSON = localStorage.getItem('password');
-          if (usernameJSON) {
-            const username = JSON.parse(usernameJSON);
-            this.name = username;
+          if (emailJSON) {
+            const email = JSON.parse(emailJSON);
+            this.email = email;
           }
           if (passwordJSON) {
             const password = JSON.parse(passwordJSON);
@@ -67,24 +78,29 @@ export class UserFormComponent implements OnInit {
     }, 1);
   }
   onSubmit() {
-    this.name = this.form.value.name!;
+    this.email = this.form.value.email!;
     this.password = this.form.value.password!;
+    if (this.form.valid) {
+      const fragment = this.mode.split(' ').reduce((acc, next) => acc + next);
+      const url = `http://localhost:3000/user/${fragment}`;
 
-    const fragment = this.mode.split(' ').reduce((acc, next) => acc + next);
-    const url = `http://localhost:3000/user/${fragment}`;
+      const httpVerb = 'post';
+      const userSub = this.httpClient[httpVerb]<{ message: string }>(url, {
+        email: this.email,
+        password: this.password,
+      }).subscribe({
+        next: (resp) => {
+          console.log(resp.message);
+        },
+      });
+    } else {
+      console.log('this.form: ', this.form);
+    }
 
-    const httpVerb = 'post';
-    const userSub = this.httpClient[httpVerb]<{ message: string }>(url, {
-      username: this.name,
-      password: this.password,
-    }).subscribe({
-      next: (resp) => {
-        console.log(resp.message);
-      },
-    });
-
-    // this.form.reset();
-    localStorage.getItem('username') && localStorage.removeItem('username');
+    this.password = '';
+    this.email = '';
+    this.form.reset();
+    localStorage.getItem('email') && localStorage.removeItem('email');
     localStorage.getItem('password') && localStorage.removeItem('password');
     localStorage.getItem('mode') && localStorage.removeItem('mode');
   }

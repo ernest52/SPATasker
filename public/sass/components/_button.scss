@@ -11,4 +11,9 @@
       color: $color_purple--light;
     }
   }
+  &__disabled {
+    cursor: default;
+    border: 2px solid white;
+    color: white;
+  }
 }

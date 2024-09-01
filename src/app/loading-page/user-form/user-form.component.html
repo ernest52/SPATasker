@@ -1,25 +1,31 @@
 <form (ngSubmit)="onSubmit()" [formGroup]="form" class="form">
-  <label for="name">username: </label>
+  <label for="email">Email: </label>
   <input
-    type="text"
-    name="name"
-    id="name"
-    [value]="name"
+    type="email"
+    name="email"
+    id="email"
+    [value]="email"
     autocomplete="false"
     class="form__input"
-    formControlName="name"
+    formControlName="email"
   />
   <p
     [class]="{
       info: true,
-      info__full: username.invalid && username.touched,
-      info__empty: username.valid || username.untouched
+      info__full: userEmail.invalid && userEmail.touched,
+      info__empty: userEmail.valid || userEmail.untouched
     }"
   >
-  @if(username.errors?.['minlength'] && username.touched){
-    <p>username needs to have : {{username.errors?.['minlength'].requiredLength}} characters but has: {{username.errors?.['minlength'].actualLength}} </p>
+  @if(userEmail.errors?.['minlength'] && userEmail.touched){
+    <p>username needs to have : {{userEmail.errors?.['minlength'].requiredLength}} characters but has: {{userEmail.errors?.['minlength'].actualLength}} </p>
    }
-    @else if(username.invalid && username.touched){ this field is required}
+   @else if(userEmail.errors?.['maxlength'] && userEmail.touched){
+    <p>username needs to have : {{userEmail.errors?.['maxlength'].requiredLength}} characters but has: {{userEmail.errors?.['maxlength'].actualLength}}  </p>
+   }
+   @else if(userEmail.errors?.['email'] && userEmail.touched){
+    <p>is not a valid email </p>
+   }
+    @else if(userEmail.invalid && userEmail.touched){ this field is required}
    
   </p>
   <label for="password">password: </label>
@@ -39,7 +45,20 @@
       info__empty: userPassword.valid || userPassword.untouched
     }"
   >
-    @if(userPassword.invalid && userPassword.touched){ this field is required }
+  @if(userPassword.errors?.['minlength'] && userPassword.touched){
+    <p>username needs to have : {{userPassword.errors?.['minlength'].requiredLength}} characters but has: {{userPassword.errors?.['minlength'].actualLength}} </p>
+   }
+   @else if(userPassword.errors?.['maxlength'] && userPassword.touched){
+    <p>username needs to have : {{userPassword.errors?.['maxlength'].requiredLength}} characters but has: {{userPassword.errors?.['maxlength'].actualLength}}  </p>
+   }
+   @else if(userPassword.errors?.['email'] && userPassword.touched){
+    <p>is not a valid email </p>
+   }
+    @else if(userPassword.invalid && userPassword.touched){ this field is required}
   </p>
-  <button class="btn btn__purple" [disabled]="form.invalid">{{ mode }}</button>
+  <button [class]=
+  "{btn:true,
+    btn__purple:form.valid,
+    btn__disabled:form.invalid
+  }"   >{{ mode }}</button>
 </form>
