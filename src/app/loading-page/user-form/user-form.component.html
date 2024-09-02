@@ -1,3 +1,7 @@
+
+@if(info){
+  <p>{{info}}</p>
+}
 <form (ngSubmit)="onSubmit()" [formGroup]="form" class="form">
   <label for="email">Email: </label>
   <input

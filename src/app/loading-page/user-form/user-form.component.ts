@@ -7,7 +7,8 @@ import {
   FormControl,
 } from '@angular/forms';
 
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subscription } from 'rxjs';
+import { UserService } from '../../shared/user.service';
 
 @Component({
   selector: 'app-user-form',
@@ -37,9 +38,12 @@ export class UserFormComponent implements OnInit {
       ],
     }),
   });
+  userService = inject(UserService);
+  userSub!: Subscription;
   @Input({ required: true }) mode!: string;
   email = '';
   password = '';
+  info = '';
   userEmail = this.form.controls.email;
   userPassword = this.form.controls.password;
 
@@ -51,7 +55,7 @@ export class UserFormComponent implements OnInit {
           localStorage.setItem('password', JSON.stringify(password));
         }
         if (email) {
-          localStorage.setItem('email', JSON.stringify(name));
+          localStorage.setItem('email', JSON.stringify(email));
         }
 
         localStorage.setItem('mode', JSON.stringify(this.mode));
@@ -81,18 +85,38 @@ export class UserFormComponent implements OnInit {
     this.email = this.form.value.email!;
     this.password = this.form.value.password!;
     if (this.form.valid) {
-      const fragment = this.mode.split(' ').reduce((acc, next) => acc + next);
-      const url = `http://localhost:3000/user/${fragment}`;
-
-      const httpVerb = 'post';
-      const userSub = this.httpClient[httpVerb]<{ message: string }>(url, {
-        email: this.email,
-        password: this.password,
-      }).subscribe({
-        next: (resp) => {
-          console.log(resp.message);
-        },
-      });
+      const fragment = this.mode
+        .trim()
+        .split(' ')
+        .reduce((acc, next) => acc + next);
+      console.log('this.mode: ', this.mode, 'this.fragment:', fragment);
+      if (fragment === 'signin') {
+        this.userSub = this.userService
+          .logInUser(this.email, this.password)
+          .subscribe({
+            next: (message) => {
+              console.log(message);
+              this.info = message;
+            },
+            error: (err) => {
+              this.info = err?.error?.message || err.message;
+            },
+          });
+      }
+      //  else {
+      //   this.userSub = this.userService
+      //     .registerUser(this.email, this.password)
+      //     .subscribe({
+      //       next: (resp) => {
+      //         this.mode = 'sign in';
+      //         this.info = resp.message;
+      //       },
+      //       error: (err) => {
+      //         this.info = err?.error?.message || err.message;
+      //       },
+      //     });
+      // }
+      this.destroyRef.onDestroy(() => this.userSub.unsubscribe());
     } else {
       console.log('this.form: ', this.form);
     }
