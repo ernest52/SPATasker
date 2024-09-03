@@ -7,8 +7,15 @@ export class UserService {
   token = '';
   expiresIn = '';
   private isAuth = new BehaviorSubject(false);
+  private setPanel = new BehaviorSubject({ value: '', message: '' });
   get isAuthObserv() {
     return this.isAuth.asObservable();
+  }
+  setPanelFn(setPanel: { value: string; message: string }) {
+    this.setPanel.next(setPanel);
+  }
+  get setPanelObserv() {
+    return this.setPanel.asObservable();
   }
   logInUser(email: string, password: string) {
     const url = `http://localhost:3000/user/signin`;
@@ -21,12 +28,10 @@ export class UserService {
         map((resp) => {
           this.token = resp.token;
           this.expiresIn = resp.expiresIn;
-          console.log('FROM MAP: ');
-          console.log('this.token: ', this.token);
-          console.log('this.expiresIn: ', this.expiresIn);
           this.isAuth.next(true);
           this.addToLocalStorage(this.token, this.expiresIn);
           this.autoAuth();
+          this.setPanel.next({ value: '', message: resp.message });
           return resp.message;
         })
       );
@@ -39,35 +44,50 @@ export class UserService {
       password,
     });
   }
+  logOut() {
+    this.isAuth.next(false);
+    this.token = '';
+    this.expiresIn = '';
+    this.removeFromLocalStorage();
+    // this.setPanel.next({ value: '', message: resp.message });
+    return this.httpClient
+      .get<{ message: string }>('http://localhost:3000/user/logout')
+      .pipe(
+        map((resp) => {
+          this.setPanel.next({ value: '', message: resp.message });
+        })
+      );
+  }
   autoAuth() {
     const tokenData = this.getFromLocalStorage();
     if (tokenData.expiresIn > 0) {
       this.isAuth.next(true);
       this.token = tokenData.token;
       setTimeout(() => {
-        this.removeFromLocalStorage();
+        this.logOut();
       }, tokenData.expiresIn);
+    } else {
+      this.logOut();
     }
   }
   private addToLocalStorage(token: string, expiresIn: string) {
     const tokenJSON = JSON.stringify(token);
     const time = new Date().getTime() + Number(expiresIn) * 1000;
     const expiresInData = new Date(time);
-    console.log('expiresInData: ', expiresInData);
-    console.log('expiresInData.toStringISO(): ', expiresInData.toISOString());
+
     const expiresInDataJSON = JSON.stringify(expiresInData.toISOString());
-    console.log('expiresInDataJSON: ', expiresInDataJSON);
+
     localStorage.setItem('token', tokenJSON);
     localStorage.setItem('expiresIn', expiresInDataJSON);
   }
   private removeFromLocalStorage() {
-    this.token = '';
-    this.expiresIn = '';
+    // this.isAuth.next(false);
+    // this.token = '';
+    // this.expiresIn = '';
     localStorage.removeItem('token');
     localStorage.removeItem('expiresIn');
   }
   private getFromLocalStorage() {
-    console.log(`from getFromLocalStorage(): `);
     const tokenData = {
       token: '',
       expiresIn: 0,
@@ -77,24 +97,20 @@ export class UserService {
 
     if (tokenJSON) {
       const token = JSON.parse(tokenJSON);
-      console.log('token: ', token);
+
       tokenData.token = token;
     }
     if (expiresInJSON) {
       const expiresIn = JSON.parse(expiresInJSON);
       const now = new Date().getTime();
       const expirationDate = new Date(expiresIn);
-      // console.log('expirationDate: ', expirationDate);
-      // console.log('expirationDate.getTime(): ', expirationDate.getTime());
       const isInFuture = expirationDate.getTime() - now;
-      // console.log('is in Future: ', isInFuture);
-      // console.log('expiresIn: ', expiresIn);
-      // console.log(`now: `, now);
+
       if (isInFuture > 0) {
         tokenData.expiresIn = isInFuture;
       }
     }
-    console.log('tokenData: ', tokenData);
+
     return tokenData;
   }
 }

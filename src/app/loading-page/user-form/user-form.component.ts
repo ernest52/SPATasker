@@ -81,6 +81,9 @@ export class UserFormComponent implements OnInit {
       }
     }, 1);
   }
+  onCancel() {
+    this.userService.setPanelFn({ value: '', message: '' });
+  }
   onSubmit() {
     this.email = this.form.value.email!;
     this.password = this.form.value.password!;
@@ -89,36 +92,32 @@ export class UserFormComponent implements OnInit {
         .trim()
         .split(' ')
         .reduce((acc, next) => acc + next);
-      console.log('this.mode: ', this.mode, 'this.fragment:', fragment);
+
       if (fragment === 'signin') {
         this.userSub = this.userService
           .logInUser(this.email, this.password)
           .subscribe({
             next: (message) => {
-              console.log(message);
               this.info = message;
             },
             error: (err) => {
               this.info = err?.error?.message || err.message;
             },
           });
+      } else {
+        this.userSub = this.userService
+          .registerUser(this.email, this.password)
+          .subscribe({
+            next: (resp) => {
+              this.mode = 'sign in';
+              this.info = resp.message;
+            },
+            error: (err) => {
+              this.info = err?.error?.message || err.message;
+            },
+          });
       }
-      //  else {
-      //   this.userSub = this.userService
-      //     .registerUser(this.email, this.password)
-      //     .subscribe({
-      //       next: (resp) => {
-      //         this.mode = 'sign in';
-      //         this.info = resp.message;
-      //       },
-      //       error: (err) => {
-      //         this.info = err?.error?.message || err.message;
-      //       },
-      //     });
-      // }
       this.destroyRef.onDestroy(() => this.userSub.unsubscribe());
-    } else {
-      console.log('this.form: ', this.form);
     }
 
     this.password = '';

@@ -60,9 +60,10 @@
    }
     @else if(userPassword.invalid && userPassword.touched){ this field is required}
   </p>
-  <button [class]=
+  <button type="submit" [class]=
   "{btn:true,
     btn__purple:form.valid,
     btn__disabled:form.invalid
   }"   >{{ mode }}</button>
+  <button type="button" class="btn btn__purple" (click)="onCancel()">cancel</button>
 </form>
