@@ -16,10 +16,10 @@ function authUser(request: HttpRequest<unknown>, next: HttpHandlerFn) {
     const req = request.clone({
       headers: request.headers.set('Authorization', `bearer: ${token}`),
     });
-    console.log('OUTGOING REQUEST: ', req);
+
     return next(req);
   }
-  console.log('OUTGOING REQUEST: ', request);
+
   return next(request);
 }
 

@@ -3,11 +3,12 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { UserFormComponent } from './user-form/user-form.component';
 import { MainPanelComponent } from './main-panel/main-panel.component';
 import { UserService } from '../shared/user.service';
+import { MainPageComponent } from '../main-page/main-page.component';
 
 @Component({
   selector: 'app-loading-page',
   standalone: true,
-  imports: [UserFormComponent, MainPanelComponent],
+  imports: [UserFormComponent, MainPanelComponent, MainPageComponent],
   templateUrl: './loading-page.component.html',
   styleUrl: './loading-page.component.scss',
 })
@@ -50,8 +51,6 @@ export class LoadingPageComponent implements OnInit {
     if (mode) {
       this.func = mode;
       this.showPanel = true;
-    } else {
-      this.isAuth = false;
     }
   }
 }

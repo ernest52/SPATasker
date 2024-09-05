@@ -1,0 +1,36 @@
+.mainPage {
+  min-height: 100vh;
+  display: grid;
+
+  grid-template-columns: max-content, 1fr;
+  grid-template-rows: max-content minmax(max-content, 1fr) max-content;
+  grid-template-areas:
+    "sNav  tNav"
+    "sNav main"
+    "footer footer";
+  gap: 2px;
+  padding: 2px;
+  background-color: #fff;
+
+  // background-color: #fff;
+
+  & > * {
+    // border: 2px solid white;
+    background-color: black;
+  }
+  &__sidenav {
+    grid-area: sNav;
+  }
+  &__topnav {
+    // background-color: orangered;
+    grid-area: tNav;
+  }
+  &__content {
+    // background-color: pink;
+    grid-area: main;
+  }
+  &__footer {
+    // background: crimson;
+    grid-area: footer;
+  }
+}
