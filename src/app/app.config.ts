@@ -9,6 +9,7 @@ import { UserService } from './shared/user.service';
 
 import { routes } from './app.routes';
 import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 function authUser(request: HttpRequest<unknown>, next: HttpHandlerFn) {
   const userService = inject(UserService);
   const token = userService.token;
@@ -27,6 +28,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authUser])),
+    provideHttpClient(withInterceptors([authUser])), provideAnimationsAsync(),
   ],
 };

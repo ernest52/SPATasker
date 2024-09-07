@@ -1,8 +1,10 @@
+@import "../../../public/sass/main.scss";
 .mainPage {
   min-height: 100vh;
+  width: 80vw;
   display: grid;
 
-  grid-template-columns: max-content, 1fr;
+  grid-template-columns: max-content 1fr;
   grid-template-rows: max-content minmax(max-content, 1fr) max-content;
   grid-template-areas:
     "sNav  tNav"
@@ -10,27 +12,25 @@
     "footer footer";
   gap: 2px;
   padding: 2px;
-  background-color: #fff;
-
-  // background-color: #fff;
-
+  background-color: $color_white;
   & > * {
-    // border: 2px solid white;
-    background-color: black;
+    background-color: $color_black;
   }
   &__sidenav {
     grid-area: sNav;
   }
   &__topnav {
-    // background-color: orangered;
     grid-area: tNav;
+    padding: 1rem;
+    text-align: right;
+    & > * {
+      margin-right: 1rem;
+    }
   }
   &__content {
-    // background-color: pink;
     grid-area: main;
   }
   &__footer {
-    // background: crimson;
     grid-area: footer;
   }
 }

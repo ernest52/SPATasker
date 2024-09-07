@@ -1,23 +1,14 @@
 <div class="mainPage">
   <nav class="mainPage__sidenav">Here will be side nav</nav>
   <nav class="mainPage__topnav">
-    <button class="btn btn__purple">Add new Task</button>
+    <!-- <button class="btn btn__purple">Add new Task</button> -->
+    <a class="btn btn__purple" [routerLink]="['/user', 'newTask']"
+      >Add New Task</a
+    >
     <button class="btn btn__purple" (click)="logOut()">Log Out</button>
   </nav>
   <main class="mainPage__content">
-    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis
-    consectetur eveniet vero consequatur dicta ratione quae iste tenetur,
-    corrupti reiciendis fugit, non similique culpa voluptatibus rem. Ut vero
-    dignissimos porro Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-    Odit ipsam quo nemo doloremque voluptatibus eum reprehenderit, sint id rerum
-    excepturi maxime dolores. Nisi a earum, rerum dolorem impedit accusamus eum!
-    Sit cupiditate, magni placeat praesentium dolores ducimus libero nesciunt,
-    dicta nemo itaque dolore natus reiciendis obcaecati. Temporibus accusantium
-    nihil doloremque aliquid magnam laudantium officia at? Incidunt ipsam quo
-    iusto dignissimos! Eaque voluptate voluptatum expedita. Deserunt corrupti
-    saepe reprehenderit, veniam assumenda ex architecto error dignissimos iusto
-    eligendi, amet quibusdam a dicta minus et perspiciatis provident natus
-    doloribus dolor reiciendis! Earum, perferendis.
+    <router-outlet />
   </main>
   <footer class="mainPage__footer">
     <button class="btn btn__purple">remove account</button>

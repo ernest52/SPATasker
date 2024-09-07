@@ -1,4 +1,10 @@
 .btn {
+  &:link {
+    text-decoration: none;
+    // padding: 0;
+  }
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  font-size: 1.5rem;
   border: none;
   background-color: transparent;
   padding: 1rem;
@@ -10,6 +16,12 @@
       border: 2px solid $color_purple--dark;
       color: $color_purple--light;
     }
+  }
+  &__rounded {
+    border-radius: 10px;
+  }
+  &__right {
+    margin-left: auto;
   }
   &__disabled {
     cursor: default;

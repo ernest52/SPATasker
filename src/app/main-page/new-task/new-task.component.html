@@ -1,0 +1,75 @@
+<form (ngSubmit)="onSubmit()" [formGroup]="form" class="newTask">
+  <mat-form-field>
+    <mat-label>title</mat-label>
+    <input matInput formControlName="title" (blur)="updateErrorMessage()" />
+  </mat-form-field>
+  @if (title.invalid && title.dirty) {
+
+  <mat-error>{{ errorMessage().title }}</mat-error>
+  }
+  <mat-form-field>
+    <mat-label>Enter task content</mat-label>
+    <textarea
+      matInput
+      formControlName="content"
+      (blur)="updateErrorMessage()"
+      class="newTask__content"
+    >
+    </textarea>
+  </mat-form-field>
+  @if (content.invalid && content.dirty) {
+  <mat-error>{{ errorMessage().content }}</mat-error>
+  }
+  <div formArrayName="options" class="options">
+    <label for="daily" class="options__label"
+      ><input
+        type="radio"
+        name="0"
+        id="daily"
+        value="daily"
+        formControlName="0"
+      />
+      Daily Task</label
+    >
+    <label for="goal" class="options__label"
+      ><input
+        type="radio"
+        id="goal"
+        value="goal"
+        name="0"
+        formControlName="0"
+      />
+      Set Goal</label
+    >
+    @if(setOption()){
+    <div class="options__panel">
+      @for(option of panelOptions();track option.index){
+
+      <label [for]="option.value" class="option">
+        @if(panelOptions().length!==2){
+        <input
+          [id]="option.value"
+          type="radio"
+          name="1"
+          formControlName="1"
+          [value]="option.value"
+        />
+        }@else {
+        <input
+          [id]="option.value"
+          type="date"
+          name="1"
+          formControlName="1"
+          (change)="setGoal(option.index)"
+        />
+        }
+
+        {{ option.value }}</label
+      >
+      }
+    </div>
+
+    }
+  </div>
+  <button class="btn btn__purple btn__rounded btn__right">Submit</button>
+</form>
