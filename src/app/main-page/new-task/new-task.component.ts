@@ -27,7 +27,7 @@ import { merge } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewTaskComponent {
-  optionsControls = [new FormControl(false), new FormControl(false)];
+  optionsControls = [new FormControl(''), new FormControl('')];
   form = new FormGroup({
     title: new FormControl('', [Validators.required]),
     content: new FormControl('', [
@@ -41,11 +41,12 @@ export class NewTaskComponent {
   setOption = signal('');
   title = this.form.controls.title;
   content = this.form.controls.content;
-  panelOptions = signal<{ index: number; value: string }[]>([]);
+  panelOptions = signal<{ index: number; value: string }[] | []>([]);
   buttons = false;
+  setDailyGoalCorrect = false;
   fullDate = signal<{ from: string; to: string }>({ from: '', to: '' });
 
-  errorMessage = signal({ content: '', title: '' });
+  errorMessage = signal({ content: '', title: '', date: '' });
   constructor() {
     merge(this.content.statusChanges, this.content.valueChanges)
       .pipe(takeUntilDestroyed())
@@ -58,35 +59,124 @@ export class NewTaskComponent {
       .subscribe(() => this.setOptionFn());
   }
   onSubmit() {
-    console.log('this.form: ', this.form);
+    console.log('fullDate(): ', this.fullDate());
+    if (this.fullDate().from && this.fullDate().to) {
+      const now = new Date();
+      const today = new Date(now.setDate(now.getDate() - 1));
+      const fromDate = new Date(this.fullDate().from);
+      const toDate = new Date(this.fullDate().to);
+      if (
+        today.getTime() > fromDate.getTime() ||
+        today.getTime() > toDate.getTime()
+      ) {
+        this.errorMessage().date = 'You must choose dates from future';
+      } else {
+        this.errorMessage().date = '';
+      }
+      if (fromDate.getTime() > toDate.getTime()) {
+        const bin = this.fullDate().from;
+        this.fullDate().from = this.fullDate().to;
+        this.fullDate().to = bin;
+      }
+    } else {
+      if (this.setOption() === 'goal') {
+        this.errorMessage().date = 'To set a goal you need to add both date';
+      }
+    }
+    if (this.options.value[0] === 'once') {
+      const value = this.options.value[1];
+      if (value) {
+        const now = new Date();
+        const today = new Date(now.setDate(now.getDate() - 1));
+        const taskDate = new Date(value);
+        const isInFuture = today.getTime() < taskDate.getTime();
+        if (isInFuture) {
+          this.errorMessage().date = '';
+        } else {
+          this.errorMessage().date = 'you need to choose future date';
+        }
+      }
+    }
+    if (
+      !this.errorMessage().content &&
+      !this.errorMessage().date &&
+      !this.errorMessage().title
+    ) {
+      console.log('data ready to sent to server');
+      const task = {
+        title: this.title.value,
+        content: this.content.value,
+        repeated: false,
+        isATarget: false,
+        repeatedAt: '',
+        startGoal: '',
+        endGoal: '',
+        date: '',
+      };
+      const [type, value] = this.options.value;
+      if (value) {
+        if (type === 'once') {
+          task.date = value;
+        } else if (type === 'goal') {
+          task.isATarget = true;
+          task.startGoal = this.fullDate().from;
+          task.endGoal = this.fullDate().to;
+          task.date = task.startGoal;
+        } else if (type === 'daily') {
+          task.repeated = true;
+          task.repeatedAt = this.options.value[1]!;
+        }
+      } else {
+        task.date = new Date().toISOString();
+      }
+      console.log(`task:`, task);
+    }
   }
   setGoal(but: number = 3) {
-    console.log(`FROM setGoal()`);
-    console.log(' this.options.value: ', this.options.value[1]);
-    const date = this.options.value[1] as unknown as string;
-    console.log('date: ', date);
-    console.log('but: ', but);
-    if (but === 0) {
-      this.fullDate().from = date;
-    } else if (but === 1) {
-      this.fullDate().to = date;
+    // console.log(`FROM setGoal()`);
+    // console.log(' this.options.value: ', this.options.value[1]);
+    const date = this.options.value[1];
+    // console.log('date: ', date);
+    // console.log('but: ', but);
+    if (date) {
+      if (but === 0) {
+        this.fullDate().from = date;
+      } else if (but === 1) {
+        this.fullDate().to = date;
+      }
     }
 
-    console.log('this.fullDate: ', this.fullDate());
+    // console.log('this.fullDate: ', this.fullDate());
   }
   setOptionFn() {
-    console.log('FROM setOptionFn() ');
-    const value = this.options.value[0] as unknown as string;
-    console.log('this.options.value: ', this.options.value);
-    this.setOption.set(value);
-    let options;
-    this.setOption() === 'daily'
-      ? (options =
-          'every day,monday,tuesday,wednesday,thursday,friday,saturday,sunday')
-      : (options = 'From,To') && (this.buttons = true);
-    this.panelOptions.set(
-      options.split(',').map((el, index) => ({ index, value: el }))
-    );
+    // console.log('FROM setOptionFn() ');
+
+    const value = this.options.value[0];
+    // console.log('this.options.value: ', this.options.value);
+    if (value) {
+      this.setOption.set(value);
+      let options;
+      this.setOption() === 'daily'
+        ? (options =
+            'day,monday,tuesday,wednesday,thursday,friday,saturday,sunday')
+        : this.setOption() === 'goal'
+        ? (options = 'From,To') && (this.buttons = true)
+        : '';
+
+      options
+        ? this.panelOptions.set(
+            options.split(',').map((el, index) => ({ index, value: el }))
+          )
+        : this.panelOptions.set([]);
+      if (
+        this.setOption() === 'daily' &&
+        this.panelOptions().some((el) => el.value == this.options.value[1])
+      ) {
+        this.setDailyGoalCorrect = true;
+      } else {
+        this.setDailyGoalCorrect = false;
+      }
+    }
   }
   updateErrorMessage() {
     if (this.content.hasError('required')) {

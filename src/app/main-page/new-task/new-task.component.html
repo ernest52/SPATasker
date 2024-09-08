@@ -41,12 +41,39 @@
       />
       Set Goal</label
     >
-    @if(setOption()){
-    <div class="options__panel">
+    <label for="once" class="options__label" style="cursor: pointer">
+      <input
+        type="radio"
+        id="once"
+        value="once"
+        name="0"
+        onclick="oneDate.showPicker()"
+        formControlName="0"
+        style="visibility: hidden"
+      />
+      <input
+        type="date"
+        id="oneDate"
+        style="visibility: hidden; width: 0"
+        name="1"
+        formControlName="1"
+      />
+      One time Task
+    </label>
+    @if(panelOptions().length){
+    <div
+      class="options__panel"
+      [style]="{
+        'border-color':
+          (fullDate().from && fullDate().to && !errorMessage().date) ||
+          setDailyGoalCorrect
+            ? 'green'
+            : ''
+      }"
+    >
       @for(option of panelOptions();track option.index){
-
       <label [for]="option.value" class="option">
-        @if(panelOptions().length!==2){
+        @if(panelOptions().length!==2){ @if($first){<span>every: </span> }
         <input
           [id]="option.value"
           type="radio"
@@ -66,10 +93,26 @@
 
         {{ option.value }}</label
       >
+      } @if(errorMessage().date){
+      <p class="error">{{ errorMessage().date }}</p>
+
       }
     </div>
 
-    }
+    }@else{ @if(errorMessage().date){
+    <p class="error">{{ errorMessage().date }}</p>
+
+    } }
   </div>
-  <button class="btn btn__purple btn__rounded btn__right">Submit</button>
+  <button
+    [class]="{
+      btn: true,
+      btn__rounded: true,
+      btn__right: true,
+      btn__purple: form.valid,
+      btn__disabled: form.invalid
+    }"
+  >
+    Submit
+  </button>
 </form>
