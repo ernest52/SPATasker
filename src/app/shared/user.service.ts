@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, map } from 'rxjs';
+import type Task from './task.model';
 @Injectable({ providedIn: 'root' })
 export class UserService {
   httpClient = inject(HttpClient);
@@ -16,6 +17,12 @@ export class UserService {
   }
   get setPanelObserv() {
     return this.setPanel.asObservable();
+  }
+  addNewTask(task: Task) {
+    return this.httpClient.post<{ message: string }>(
+      'http://localhost:3000/user/tasks',
+      { task }
+    );
   }
   logInUser(email: string, password: string) {
     const url = `http://localhost:3000/user/signin`;

@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UserService } from '../../shared/user.service';
+import type Task from '../../shared/task.model';
 
 import {
   FormArray,
@@ -27,6 +36,9 @@ import { merge } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewTaskComponent {
+  router = inject(Router);
+  userService = inject(UserService);
+  destroyRef = inject(DestroyRef);
   optionsControls = [new FormControl(''), new FormControl('')];
   form = new FormGroup({
     title: new FormControl('', [Validators.required]),
@@ -59,7 +71,7 @@ export class NewTaskComponent {
       .subscribe(() => this.setOptionFn());
   }
   onSubmit() {
-    console.log('fullDate(): ', this.fullDate());
+    // console.log('fullDate(): ', this.fullDate());
     if (this.fullDate().from && this.fullDate().to) {
       const now = new Date();
       const today = new Date(now.setDate(now.getDate() - 1));
@@ -103,9 +115,9 @@ export class NewTaskComponent {
       !this.errorMessage().title
     ) {
       console.log('data ready to sent to server');
-      const task = {
-        title: this.title.value,
-        content: this.content.value,
+      const task: Task = {
+        title: this.title.value || '',
+        content: this.content.value || '',
         repeated: false,
         isATarget: false,
         repeatedAt: '',
@@ -116,12 +128,12 @@ export class NewTaskComponent {
       const [type, value] = this.options.value;
       if (value) {
         if (type === 'once') {
-          task.date = value;
+          task.date = new Date(value).toISOString();
         } else if (type === 'goal') {
           task.isATarget = true;
-          task.startGoal = this.fullDate().from;
-          task.endGoal = this.fullDate().to;
-          task.date = task.startGoal;
+          task.startGoal = new Date(this.fullDate().from).toISOString();
+          task.endGoal = new Date(this.fullDate().to).toISOString();
+          // task.date = task.startGoal;
         } else if (type === 'daily') {
           task.repeated = true;
           task.repeatedAt = this.options.value[1]!;
@@ -129,7 +141,21 @@ export class NewTaskComponent {
       } else {
         task.date = new Date().toISOString();
       }
-      console.log(`task:`, task);
+      this.form.reset({});
+      const taskSub = this.userService.addNewTask(task).subscribe({
+        next: (resp) => {
+          console.log(resp.message);
+          this.userService.setPanelFn({ value: '', message: resp.message });
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          this.userService.setPanelFn({
+            value: '',
+            message: err.error?.message || err.message,
+          });
+        },
+      });
+      this.destroyRef.onDestroy(() => taskSub.unsubscribe());
     }
   }
   setGoal(but: number = 3) {
