@@ -4,7 +4,7 @@
   width: 80vw;
   display: grid;
 
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: 20vw 1fr;
   grid-template-rows: max-content minmax(max-content, 1fr) max-content;
   grid-template-areas:
     "sNav  tNav"
@@ -32,5 +32,44 @@
   }
   &__footer {
     grid-area: footer;
+  }
+  // .link {
+  //   position: relative;
+  // }
+  .link:hover > .supList,
+  .suplink:hover > .supList {
+    display: block;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .label {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 2px solid $color_purple--light;
+  }
+
+  .supList {
+    transform: translateY(-100%);
+    transition: transform 2s, visibility 0s 2s;
+    position: relative;
+    width: 100%;
+    display: none;
+    visibility: hidden;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    padding: 0 0.5rem;
+    & > * {
+      text-align: center;
+      padding: 1rem 0.2rem;
+      cursor: pointer;
+    }
+    & > *:hover {
+      border: 2px solid $color_purple--light;
+    }
+    & > .suplink:hover {
+      border: none;
+    }
   }
 }

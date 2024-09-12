@@ -1,5 +1,33 @@
 <div class="mainPage">
-  <nav class="mainPage__sidenav">Here will be side nav</nav>
+  <nav class="mainPage__sidenav">
+    <div class="link">
+      <p class="label">My Goals</p>
+      <ul class="supList">
+        <li>finished</li>
+        <li>current</li>
+      </ul>
+    </div>
+    <div class="link">
+      <p class="label">My Tasks</p>
+      <ul class="supList">
+        <li>this week</li>
+        <li>today</li>
+        <div class="suplink">
+          <p class="label">Every</p>
+          <ul class="supList">
+            <li>day</li>
+            <li>monday</li>
+            <li>tuesday</li>
+            <li>wednesday</li>
+            <li>thursday</li>
+            <li>friday</li>
+            <li>saturday</li>
+            <li>sunday</li>
+          </ul>
+        </div>
+      </ul>
+    </div>
+  </nav>
   <nav class="mainPage__topnav">
     <!-- <button class="btn btn__purple">Add new Task</button> -->
     <a class="btn btn__purple" [routerLink]="['/user', 'newTask']"
